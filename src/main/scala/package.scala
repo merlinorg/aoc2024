@@ -39,6 +39,8 @@ extension (self: Vector[String]) def numbers: Vector[Vector[Long]] = self.map(_.
 extension [A](self: Vector[A])
   def mapToMap[B, C](f: A => (B, C)): Map[B, C] = self.map(f).toMap
 
+  def findMap[B](f: A => Option[B]): B = self.flatMap(f).head
+
   // maps a vector with an accumulator, returning the final accumulator and values
   def mapAcc[B, C](c0: C)(f: (C, A) => (C, B)): (C, Vector[B]) =
     self.foldLeft(c0 -> Vector.empty[B]):
@@ -61,12 +63,7 @@ extension [A](self: Vector[A])
   def splice(from: Int, length: Int, insert: Vector[A] = Vector.empty): Vector[A] =
     self.slice(0, from) ++ insert ++ self.slice(from + length, self.length)
 
-  def cross[B](bs: Iterable[B]): Vector[(A, B)] =
-    for (a <- self; b <- bs) yield a -> b
-
   def middle: A = self(self.length / 2)
-  
-  def tuple2: (A, A) = (self.head, self(1))
 
 // range extensions
 extension (self: NumericRange[Long])
@@ -90,8 +87,7 @@ extension (self: Board)
   def apply(loc: Loc): Char          = self(loc.y.toInt)(loc.x.toInt)
   def get(loc: Loc): Option[Char]    = Option.when(loc >=< self)(self(loc))
   def is(loc: Loc, c: Char): Boolean = loc >=< self && self(loc) == c
-
-  def find(char: Char): Loc = locations.find(apply(_) == char).get
+  def find(char: Char): Loc          = locations.find(apply(_) == char).get
 
   def locations: Vector[Loc] =
     self.indices.toVector.flatMap(y => self.head.indices.map(x => Loc(x, y)))
@@ -125,8 +121,8 @@ object Dir:
 
   given Ordering[Dir] = Ordering.by(_.ordinal)
 
-  val cardinalValues = Array(N, E, S, W)
-  val diagonalValues = Array(NE, SE, SW, NW)
+  val cardinalValues: Vector[Dir] = Vector(N, E, S, W)
+  val diagonalValues: Vector[Dir] = Vector(NE, SE, SW, NW)
 
 // a location in space
 
@@ -137,7 +133,9 @@ final case class Loc(x: Long, y: Long):
 
   inline def >=<(board: Board): Boolean = x >=< board.head.length && y >=< board.length
 
-  def adjacents: Vector[Loc] = Dir.cardinalValues.map(this + _).toVector
+  inline def <>=(board: Board): Boolean = !(this >=< board)
+
+  def adjacents: Vector[Loc] = Dir.cardinalValues.map(this + _)
 
   def manhattan(l: Loc): Long = (l.x - x).abs + (l.y - y).abs
 
