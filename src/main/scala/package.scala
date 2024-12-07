@@ -64,6 +64,10 @@ extension [A](self: Vector[A])
   def cross[B](bs: Iterable[B]): Vector[(A, B)] =
     for (a <- self; b <- bs) yield a -> b
 
+  def middle: A = self(self.length / 2)
+  
+  def tuple2: (A, A) = (self.head, self(1))
+
 // range extensions
 extension (self: NumericRange[Long])
   def splitLess(limit: Long): (NumericRange[Long], NumericRange[Long]) =
@@ -79,12 +83,13 @@ extension (self: NumericRange[Long])
 type Board = Vector[String]
 
 extension (self: Board)
-  def width                       = self.head.length
-  def height                      = self.length
-  def nw: Loc                     = Origin
-  def se: Loc                     = Loc(width - 1, height - 1)
-  def apply(loc: Loc): Char       = self(loc.y.toInt)(loc.x.toInt)
-  def get(loc: Loc): Option[Char] = Option.when(loc >=< self)(self(loc))
+  def width                          = self.head.length
+  def height                         = self.length
+  def nw: Loc                        = Origin
+  def se: Loc                        = Loc(width - 1, height - 1)
+  def apply(loc: Loc): Char          = self(loc.y.toInt)(loc.x.toInt)
+  def get(loc: Loc): Option[Char]    = Option.when(loc >=< self)(self(loc))
+  def is(loc: Loc, c: Char): Boolean = loc >=< self && self(loc) == c
 
   def find(char: Char): Loc = locations.find(apply(_) == char).get
 
@@ -120,7 +125,7 @@ object Dir:
 
   given Ordering[Dir] = Ordering.by(_.ordinal)
 
-  val cardinalValues  = Array(N, E, S, W)
+  val cardinalValues = Array(N, E, S, W)
   val diagonalValues = Array(NE, SE, SW, NW)
 
 // a location in space
