@@ -5,6 +5,7 @@ import org.scalatest.matchers.should.Matchers
 
 class AoCTest extends AnyFreeSpec with Matchers {
   test(Day1, 11, 765748, 31, 27732508)
+  test(Day2, 2, 591, 4, 621)
 
   def test(day: AoC, sample1: Long, answer1: Long, sample2: Long, answer2: Long): Unit = {
     val name = day.getClass.getSimpleName.dropRight(1)

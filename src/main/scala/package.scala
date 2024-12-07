@@ -11,10 +11,12 @@ extension (self: Int)
     if mod < 0 then mod + n else mod
 
 extension (self: Long)
-  inline def >=<(n: Long): Boolean = self >= 0 && self < n
-  inline def %%(n: Long): Long     =
+  inline def >=<(n: Long): Boolean       = self >= 0 && self < n
+  inline def >=<(n: (Int, Int)): Boolean = self >= n._1 && self < n._2
+  inline def %%(n: Long): Long           =
     val mod = self % n
     if mod < 0 then mod + n else mod
+  inline def |-|(n: Long): Long          = (self - n).abs
 
 // iterator extensions
 
@@ -31,6 +33,8 @@ extension (self: String)
   def characters: Vector[String]     = self.split("").toVector
 
 // vector extensions
+
+extension (self: Vector[String]) def numbers: Vector[Vector[Long]] = self.map(_.numbers)
 
 extension [A](self: Vector[A])
   def mapToMap[B, C](f: A => (B, C)): Map[B, C] = self.map(f).toMap
@@ -53,6 +57,9 @@ extension [A](self: Vector[A])
 
   // all non-self element pairs
   def allPairs: Vector[(A, A)] = self.tails.toVector.tail.flatMap(self.zip)
+
+  def splice(from: Int, length: Int, insert: Vector[A] = Vector.empty): Vector[A] =
+    self.slice(0, from) ++ insert ++ self.slice(from + length, self.length)
 
 // range extensions
 extension (self: NumericRange[Long])
