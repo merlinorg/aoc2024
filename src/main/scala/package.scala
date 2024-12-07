@@ -61,6 +61,9 @@ extension [A](self: Vector[A])
   def splice(from: Int, length: Int, insert: Vector[A] = Vector.empty): Vector[A] =
     self.slice(0, from) ++ insert ++ self.slice(from + length, self.length)
 
+  def cross[B](bs: Iterable[B]): Vector[(A, B)] =
+    for (a <- self; b <- bs) yield a -> b
+
 // range extensions
 extension (self: NumericRange[Long])
   def splitLess(limit: Long): (NumericRange[Long], NumericRange[Long]) =
@@ -95,16 +98,20 @@ extension (self: Board)
 // the cardinal directions
 
 enum Dir(val dx: Long, val dy: Long):
-  def cw: Dir      = Dir.fromOrdinal((ordinal + 1) % 4)
-  def ccw: Dir     = Dir.fromOrdinal((ordinal + Dir.values.length - 1) % 4)
-  def reverse: Dir = Dir.fromOrdinal((ordinal + 2) % 4)
+  def cw: Dir      = Dir.fromOrdinal((ordinal + 2) % Dir.values.length)
+  def ccw: Dir     = Dir.fromOrdinal((ordinal + Dir.values.length - 2) % Dir.values.length)
+  def reverse: Dir = Dir.fromOrdinal((ordinal + 4) % Dir.values.length)
 
   inline def *(length: Long): Vec = Vec(this, length)
 
-  case N extends Dir(0, -1)
-  case E extends Dir(1, 0)
-  case S extends Dir(0, 1)
-  case W extends Dir(-1, 0)
+  case N  extends Dir(0, -1)
+  case NE extends Dir(1, -1)
+  case E  extends Dir(1, 0)
+  case SE extends Dir(1, 1)
+  case S  extends Dir(0, 1)
+  case SW extends Dir(-1, 1)
+  case W  extends Dir(-1, 0)
+  case NW extends Dir(-1, -1)
 
 object Dir:
   val byName: Map[String, Dir] = Map("R" -> Dir.E, "D" -> Dir.S, "L" -> Dir.W, "U" -> Dir.N).withDefault(valueOf)
@@ -112,6 +119,9 @@ object Dir:
   implicit def toVec(dir: Dir): Vec = dir * 1
 
   given Ordering[Dir] = Ordering.by(_.ordinal)
+
+  val cardinalValues  = Array(N, E, S, W)
+  val diagonalValues = Array(NE, SE, SW, NW)
 
 // a location in space
 
@@ -122,7 +132,7 @@ final case class Loc(x: Long, y: Long):
 
   inline def >=<(board: Board): Boolean = x >=< board.head.length && y >=< board.length
 
-  def adjacents: Vector[Loc] = Dir.values.map(this + _).toVector
+  def adjacents: Vector[Loc] = Dir.cardinalValues.map(this + _).toVector
 
   def manhattan(l: Loc): Long = (l.x - x).abs + (l.y - y).abs
 
