@@ -1,5 +1,7 @@
 package org.merlin.aoc2024
 
+import scala.collection.parallel.CollectionConverters.*
+
 import scalaz.*
 import Scalaz.*
 
@@ -24,7 +26,7 @@ object Day6 extends AoC:
       Guard1FSM(board.find('^'), Dir.N, board, Set.empty)
 
   override def part2(board: Board): Long =
-    board.locations.count: obstacle =>
+    board.locations.par.count: obstacle =>
       board.is(obstacle, '.') && Iterator.iterate(Guard2FSM(board, obstacle))(_.next).findMap(_.solution)
   end part2
 
