@@ -131,6 +131,10 @@ final case class Loc(x: Long, y: Long):
 
   inline def -(subtrahend: Vec): Loc = Loc(x - subtrahend.dx, y - subtrahend.dy)
 
+  inline def -(subtrahend: Loc): Loc = Loc(x - subtrahend.x, y - subtrahend.y)
+
+  inline def +(addend: Loc): Loc = Loc(x + addend.x, y + addend.y)
+
   inline def >=<(board: Board): Boolean = x >=< board.head.length && y >=< board.length
 
   inline def <>=(board: Board): Boolean = !(this >=< board)
