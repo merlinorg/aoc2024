@@ -2,7 +2,6 @@ package org.merlin.aoc2024
 
 import scalaz.*
 import scalaz.Scalaz.*
-import scala.collection.mutable
 
 object Day8 extends AoC:
 
@@ -10,9 +9,7 @@ object Day8 extends AoC:
     parse(board)
       .flatMap: locations =>
         locations.allPairs.flatMap: (a, b) =>
-          Vector(a + (a - b), b + (b - a))
-      .filter: loc =>
-        loc >=< board
+          Vector(a + (a - b), b + (b - a)).filter(_ >=< board)
       .toSet
       .size
   end part1
