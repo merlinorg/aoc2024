@@ -3,7 +3,7 @@ package org.merlin.aoc2024
 object Day9 extends AoC:
 
   override def part1(lines: Vector[String]): Long =
-    val (_, (blanks, files)) = parse(lines)
+    val (files, blanks) = parse(lines)
     Iterator
       .unfold((files.reverse, blanks)):
         case (file +: files, blank +: blanks) if blank.pos < file.pos =>
@@ -21,7 +21,7 @@ object Day9 extends AoC:
   end part1
 
   override def part2(lines: Vector[String]): Long =
-    val (_, (blanks, files)) = parse(lines)
+    val (files, blanks) = parse(lines)
     Iterator
       .unfold((files.reverse, blanks)):
         case (file +: files, blanks) =>
@@ -38,22 +38,19 @@ object Day9 extends AoC:
       .sum
   end part2
 
-  private def parse(lines: Vector[String]): (Int, (Vector[Blank], Vector[File])) =
-    lines.head.toVector.zipWithIndex
-      .foldLeft((0, (Vector.empty[Blank], Vector.empty[File]))):
-        case ((pos, (blanks, files)), (char, index)) if index % 2 == 1 =>
-          (pos + char.asDigit, (blanks :+ Blank(pos, char.asDigit), files))
-        case ((pos, (blanks, files)), (char, index)) =>
-          (pos + char.asDigit, (blanks, files :+ File(index / 2, pos, char.asDigit)))
+  private def parse(lines: Vector[String]): (Vector[Extent], Vector[Extent]) =
+    lines.head.toVector
+      .foldLeft((true, 0, 0, (Vector.empty[Extent], Vector.empty[Extent]))):
+        case ((true, index, pos, (files, blanks)), char)  =>
+          (false, index, pos + char.asDigit, (files :+ Extent(index, pos, char.asDigit), blanks))
+        case ((false, index, pos, (files, blanks)), char) =>
+          (true, index + 1, pos + char.asDigit, (files, blanks :+ Extent(index, pos, char.asDigit)))
+      ._4
 
-  sealed trait Extent
-
-  private case class File(id: Long, pos: Int, len: Int) extends Extent:
-    def value: Long                 = id * (pos * len + len * (len - 1) / 2)
-    def dropRight(n: Int): File     = copy(len = len - n)
-    def inBlank(blank: Blank): File = copy(pos = blank.pos, len = len min blank.len)
-
-  private case class Blank(pos: Int, len: Int) extends Extent:
-    def dropLeft(n: Int): Blank = Blank(pos + n, len - n)
+  private final case class Extent(id: Long, pos: Int, len: Int):
+    def value: Long                     = id * (pos * len + len * (len - 1) / 2)
+    def inBlank(extent: Extent): Extent = copy(pos = extent.pos, len = len min extent.len)
+    def dropLeft(n: Int): Extent        = copy(pos = pos + n, len = len - n)
+    def dropRight(n: Int): Extent       = copy(len = len - n)
 
 end Day9

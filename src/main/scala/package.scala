@@ -3,6 +3,11 @@ package org.merlin.aoc2024
 import scala.collection.immutable.NumericRange
 import scala.language.implicitConversions
 
+import scalaz.Monoid
+import scalaz.std.vector.*
+import scalaz.syntax.foldable.*
+import scalaz.syntax.functor.*
+
 // number extensions
 
 extension (self: Int)
@@ -38,6 +43,10 @@ extension (self: Vector[String]) def numbers: Vector[Vector[Long]] = self.map(_.
 
 extension [A](self: Vector[A])
   def mapToMap[B, C](f: A => (B, C)): Map[B, C] = self.map(f).toMap
+
+  def mapTo[B](f: A => B): Map[A, B] = self.fproduct(f).toMap
+  
+  def flatFoldMap[B](f: A => Iterable[B])(using Monoid[B]): B = self.flatMap(f).suml
 
   def findMap[B](f: A => Option[B]): B = self.flatMap(f).head
 
@@ -80,14 +89,15 @@ extension (self: NumericRange[Long])
 type Board = Vector[String]
 
 extension (self: Board)
-  def width                          = self.head.length
-  def height                         = self.length
-  def nw: Loc                        = Origin
-  def se: Loc                        = Loc(width - 1, height - 1)
-  def apply(loc: Loc): Char          = self(loc.y.toInt)(loc.x.toInt)
-  def get(loc: Loc): Option[Char]    = Option.when(loc >=< self)(self(loc))
-  def is(loc: Loc, c: Char): Boolean = loc >=< self && self(loc) == c
-  def find(char: Char): Loc          = locations.find(apply(_) == char).get
+  def width                            = self.head.length
+  def height                           = self.length
+  def nw: Loc                          = Origin
+  def se: Loc                          = Loc(width - 1, height - 1)
+  def apply(loc: Loc): Char            = self(loc.y.toInt)(loc.x.toInt)
+  def get(loc: Loc): Option[Char]      = Option.when(loc >=< self)(self(loc))
+  def is(loc: Loc, c: Int): Boolean   = loc >=< self && self(loc) == c
+  def find(char: Char): Loc            = locations.find(apply(_) == char).get
+  def findAll(char: Char): Vector[Loc] = locations.filter(apply(_) == char)
 
   def locations: Vector[Loc] =
     self.indices.toVector.flatMap(y => self.head.indices.map(x => Loc(x, y)))
