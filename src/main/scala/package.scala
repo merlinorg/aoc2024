@@ -14,6 +14,7 @@ extension (self: Int)
   inline def %%(n: Int): Int =
     val mod = self % n
     if mod < 0 then mod + n else mod
+  inline def even: Boolean   = self % 2 == 0
 
 extension (self: Long)
   inline def >=<(n: Long): Boolean       = self >= 0 && self < n
@@ -22,10 +23,16 @@ extension (self: Long)
     val mod = self % n
     if mod < 0 then mod + n else mod
   inline def |-|(n: Long): Long          = (self - n).abs
+  inline def /%(n: Long): (Long, Long)   = (self / n, self % n)
+  inline def **(n: Long): Long           = math.pow(self.doubleValue, n.doubleValue).longValue
+  inline def digits: Int                 = 1 + math.log10(self.doubleValue).intValue
 
 // iterator extensions
 
-extension [A](self: Iterator[A]) def findMap[B](f: A => Option[B]): B = self.flatMap(f).next()
+extension [A](self: Iterator[A])
+  def nth(n: Int): A                    = self.drop(n).next
+  def findMap[B](f: A => Option[B]): B  = self.flatMap(f).next()
+  def foldMap[B: Numeric](f: A => B): B = self.map(f).sum
 
 private val WordRe = "\\S+".r
 
@@ -45,7 +52,7 @@ extension [A](self: Vector[A])
   def mapToMap[B, C](f: A => (B, C)): Map[B, C] = self.map(f).toMap
 
   def mapTo[B](f: A => B): Map[A, B] = self.fproduct(f).toMap
-  
+
   def flatFoldMap[B](f: A => Iterable[B])(using Monoid[B]): B = self.flatMap(f).suml
 
   def findMap[B](f: A => Option[B]): B = self.flatMap(f).head
@@ -95,7 +102,7 @@ extension (self: Board)
   def se: Loc                          = Loc(width - 1, height - 1)
   def apply(loc: Loc): Char            = self(loc.y.toInt)(loc.x.toInt)
   def get(loc: Loc): Option[Char]      = Option.when(loc >=< self)(self(loc))
-  def is(loc: Loc, c: Int): Boolean   = loc >=< self && self(loc) == c
+  def is(loc: Loc, c: Int): Boolean    = loc >=< self && self(loc) == c
   def find(char: Char): Loc            = locations.find(apply(_) == char).get
   def findAll(char: Char): Vector[Loc] = locations.filter(apply(_) == char)
 

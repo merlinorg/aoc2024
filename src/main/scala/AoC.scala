@@ -1,25 +1,19 @@
 package org.merlin.aoc2024
 
+import org.openjdk.jmh.annotations.Benchmark
+
 import scala.io.Source
 import scala.util.matching.Regex
 import scala.util.{Try, Using}
 
-val NumRe: Regex = "-?\\d+".r
-
-def readLines(day: Int, part: Int, sample: Boolean = false): Vector[String] =
-  val source = Try:
-    Source.fromResource(if (sample) s"day-$day-sample-$part.txt" else s"day-$day-$part.txt")
-  .getOrElse:
-    Source.fromResource(if (sample) s"day-$day-sample.txt" else s"day-$day.txt")
-  Using.resource(source)(_.getLines.toVector)
+private val NumRe: Regex = "-?\\d+".r
 
 trait AoC:
   def main(args: Array[String]): Unit =
-    val day    = NumRe.findFirstIn(getClass.getSimpleName).get
     val part   = if (args.contains("2")) 2 else 1
     val sample = args.contains("sample")
 
-    val lines  = readLines(day.toInt, part, sample)
+    val lines  = readLines(part, sample)
     val result = if (part == 1) part1(lines) else part2(lines)
 
     println(result)
@@ -28,3 +22,27 @@ trait AoC:
   def part1(lines: Vector[String]): Any
 
   def part2(lines: Vector[String]): Any
+
+  val lines1: Vector[String] = readLines(1, false)
+
+  val lines2: Vector[String] = readLines(2, false)
+
+  def readLines(part: Int, sample: Boolean): Vector[String] =
+    val day = NumRe.findFirstIn(getClass.getSimpleName).get
+    val source = Try:
+      Source.fromResource(if (sample) s"day-$day-sample-$part.txt" else s"day-$day-$part.txt")
+    .getOrElse:
+      Source.fromResource(if (sample) s"day-$day-sample.txt" else s"day-$day.txt")
+    Using.resource(source)(_.getLines.toVector)
+  end readLines
+end AoC
+
+abstract class AoCBench:
+  def day: AoC
+
+  @Benchmark
+  def part1(): Unit = day.part1(day.lines1)
+
+  @Benchmark
+  def part2(): Unit = day.part2(day.lines2)
+end AoCBench

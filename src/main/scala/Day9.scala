@@ -1,11 +1,13 @@
 package org.merlin.aoc2024
 
+import scalaz.*
+import Scalaz.*
+
 object Day9 extends AoC:
 
   override def part1(lines: Vector[String]): Long =
-    val (files, blanks) = parse(lines)
     Iterator
-      .unfold((files.reverse, blanks)):
+      .unfold(parse(lines)):
         case (file +: files, blank +: blanks) if blank.pos < file.pos =>
           if (blank.len == file.len)
             Some(file.inBlank(blank), (files, blanks))
@@ -16,33 +18,29 @@ object Day9 extends AoC:
         case (file +: files, blanks)                                  =>
           Some(file, (files, blanks))
         case _                                                        => None
-      .map(_.value)
-      .sum
+      .foldMap(_.value)
   end part1
 
   override def part2(lines: Vector[String]): Long =
-    val (files, blanks) = parse(lines)
     Iterator
-      .unfold((files.reverse, blanks)):
+      .unfold(parse(lines)):
         case (file +: files, blanks) =>
-          blanks.zipWithIndex.find:
-            case (blank, _) => blank.pos < file.pos && blank.len >= file.len
-          match
-            case Some(blank, index) =>
+          blanks.span(blank => blank.pos >= file.pos || blank.len < file.len) match
+            case (pre, blank +: post) =>
               val insert = if (file.len == blank.len) Vector.empty else Vector(blank.dropLeft(file.len))
-              Some(file.inBlank(blank), (files, blanks.splice(index, 1, insert)))
-            case None               =>
+              Some(file.inBlank(blank), (files, pre ++ insert ++ post))
+            case _                    =>
               Some(file, (files, blanks))
-        case _                       => None
-      .map(_.value)
-      .sum
+        case _                       =>
+          None
+      .foldMap(_.value)
   end part2
 
   private def parse(lines: Vector[String]): (Vector[Extent], Vector[Extent]) =
     lines.head.toVector
       .foldLeft((true, 0, 0, (Vector.empty[Extent], Vector.empty[Extent]))):
         case ((true, index, pos, (files, blanks)), char)  =>
-          (false, index, pos + char.asDigit, (files :+ Extent(index, pos, char.asDigit), blanks))
+          (false, index, pos + char.asDigit, (Extent(index, pos, char.asDigit) +: files, blanks))
         case ((false, index, pos, (files, blanks)), char) =>
           (true, index + 1, pos + char.asDigit, (files, blanks :+ Extent(index, pos, char.asDigit)))
       ._4

@@ -4,6 +4,8 @@ ThisBuild / scalaVersion := "3.5.2"
 
 Global / excludeLintKeys += idePackagePrefix
 
+enablePlugins(JmhPlugin)
+
 lazy val root = (project in file("."))
   .settings(
     name             := "aoc2024",
