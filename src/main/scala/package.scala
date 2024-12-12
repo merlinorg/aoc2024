@@ -118,6 +118,7 @@ extension (self: Board)
 enum Dir(val dx: Long, val dy: Long):
   def cw: Dir      = Dir.fromOrdinal((ordinal + 2) % Dir.values.length)
   def ccw: Dir     = Dir.fromOrdinal((ordinal + Dir.values.length - 2) % Dir.values.length)
+  def ccw2: Dir    = Dir.fromOrdinal((ordinal + Dir.values.length - 1) % Dir.values.length)
   def reverse: Dir = Dir.fromOrdinal((ordinal + 4) % Dir.values.length)
 
   inline def *(length: Long): Vec = Vec(this, length)

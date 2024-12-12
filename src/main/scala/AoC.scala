@@ -1,7 +1,5 @@
 package org.merlin.aoc2024
 
-import org.openjdk.jmh.annotations.Benchmark
-
 import scala.io.Source
 import scala.util.matching.Regex
 import scala.util.{Try, Using}
@@ -36,13 +34,3 @@ trait AoC:
     Using.resource(source)(_.getLines.toVector)
   end readLines
 end AoC
-
-abstract class AoCBench:
-  def day: AoC
-
-  @Benchmark
-  def part1(): Unit = day.part1(day.lines1)
-
-  @Benchmark
-  def part2(): Unit = day.part2(day.lines2)
-end AoCBench

@@ -24,6 +24,3 @@ end Day11
 object Even:
   def unapply(value: Long): Option[(Long, Long)] =
     Option(value.digits).filter(_.even).map(digits => value /% (10L ** (digits / 2)))
-
-class Bench11 extends AoCBench:
-  override def day: AoC = Day11
