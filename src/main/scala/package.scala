@@ -103,6 +103,7 @@ extension (self: Board)
   def apply(loc: Loc): Char            = self(loc.y.toInt)(loc.x.toInt)
   def get(loc: Loc): Option[Char]      = Option.when(loc >=< self)(self(loc))
   def is(loc: Loc, c: Int): Boolean    = loc >=< self && self(loc) == c
+  def is(a: Loc, b: Loc): Boolean      = get(a) == get(b)
   def find(char: Char): Loc            = locations.find(apply(_) == char).get
   def findAll(char: Char): Vector[Loc] = locations.filter(apply(_) == char)
 
@@ -112,8 +113,6 @@ extension (self: Board)
   def split: (Board, Board) =
     val index = self.indexWhere(_.isEmpty)
     self.slice(0, index) -> self.slice(1 + index, self.length)
-
-// the cardinal directions
 
 enum Dir(val dx: Long, val dy: Long):
   def cw: Dir      = Dir.fromOrdinal((ordinal + 2) % Dir.values.length)
@@ -139,8 +138,9 @@ object Dir:
 
   given Ordering[Dir] = Ordering.by(_.ordinal)
 
-  val cardinalValues: Vector[Dir] = Vector(N, E, S, W)
-  val diagonalValues: Vector[Dir] = Vector(NE, SE, SW, NW)
+val CardinalDirections: Vector[Dir] = Vector(Dir.N, Dir.E, Dir.S, Dir.W)
+
+val OrdinalDirections: Vector[Dir] = Vector(Dir.NE, Dir.SE, Dir.SW, Dir.NW)
 
 // a location in space
 
@@ -157,7 +157,7 @@ final case class Loc(x: Long, y: Long):
 
   inline def <>=(board: Board): Boolean = !(this >=< board)
 
-  def adjacents: Vector[Loc] = Dir.cardinalValues.map(this + _)
+  def adjacents: Vector[Loc] = CardinalDirections.map(this + _)
 
   def manhattan(l: Loc): Long = (l.x - x).abs + (l.y - y).abs
 

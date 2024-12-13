@@ -16,7 +16,7 @@ object Day4 extends AoC:
   override def part2(board: Board): Long =
     board.locations.count: loc =>
       board.is(loc, 'A') &&
-        2 == Dir.diagonalValues.count: dir =>
+        2 == OrdinalDirections.count: dir =>
           board.is(loc + dir, 'M') && board.is(loc + dir.reverse, 'S')
   end part2
 

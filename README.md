@@ -18,6 +18,8 @@ sbt:aoc2024> runMain org.merlin.aoc2024.Day1 2
 ###
 sbt:aoc2024> test
 ...
+sbt:aoc2024> testOnly -- -z Day12
+...
 sbt:aoc2024> Jmh/run -i 3 -wi 3 -f1 -t1 -tu ms -bm avgt .*11.*
 ```
 

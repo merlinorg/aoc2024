@@ -20,18 +20,18 @@ object Day12 extends AoC:
   private def parse(board: Board): Vector[Region] =
     board.locations.foldLeft(Vector.empty[Region]): (regions, loc) =>
       if regions.exists(_.contains(loc)) then regions
-      else regions :+ floodfill(board, board(loc), loc, Set.empty)
+      else regions :+ floodfill(board, loc, Set.empty)
 
-  private def floodfill(board: Board, char: Char, loc: Loc, region: Region): Region =
+  private def floodfill(board: Board, loc: Loc, region: Region): Region =
     loc.adjacents.foldLeft(region + loc): (region, adj) =>
-      if region(adj) || !board.is(adj, char) then region
-      else floodfill(board, char, adj, region)
+      if region(adj) || !board.is(adj, loc) then region
+      else floodfill(board, adj, region)
 
   extension (region: Region)
     def area: Long      = region.size
     def perimeter: Long = region.foldMap(_.adjacents.count(adj => !region(adj)))
     def sides: Long     = region.foldMap: loc =>
-      Dir.cardinalValues.count: dir =>
+      CardinalDirections.count: dir =>
         !region(loc + dir) && (!region(loc + dir.ccw) || region(loc + dir.ccw2))
 
 end Day12
