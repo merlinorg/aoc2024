@@ -182,3 +182,6 @@ extension (self: Vector[Vec])
   def perimeter: Long       = self.map(_.magnitude).sum
 
 extension (self: Vector[Loc]) def area: Long = self.zip(self.tail).map((a, b) => a.x * b.y - b.x * a.y).sum.abs / 2
+
+object L:
+  def unapply(s: String): Option[Long] = s.toLongOption
