@@ -115,10 +115,12 @@ extension (self: Board)
     self.slice(0, index) -> self.slice(1 + index, self.length)
 
 enum Dir(val dx: Long, val dy: Long):
-  def cw: Dir      = Dir.fromOrdinal((ordinal + 2) % Dir.values.length)
-  def ccw: Dir     = Dir.fromOrdinal((ordinal + Dir.values.length - 2) % Dir.values.length)
-  def ccw2: Dir    = Dir.fromOrdinal((ordinal + Dir.values.length - 1) % Dir.values.length)
-  def reverse: Dir = Dir.fromOrdinal((ordinal + 4) % Dir.values.length)
+  def cw: Dir             = Dir.fromOrdinal((ordinal + 2) % Dir.values.length)
+  def ccw: Dir            = Dir.fromOrdinal((ordinal + Dir.values.length - 2) % Dir.values.length)
+  def ccw2: Dir           = Dir.fromOrdinal((ordinal + Dir.values.length - 1) % Dir.values.length)
+  def reverse: Dir        = Dir.fromOrdinal((ordinal + 4) % Dir.values.length)
+  def horizontal: Boolean = dy == 0
+  def vertical: Boolean   = dx == 0
 
   inline def *(length: Long): Vec = Vec(this, length)
 
