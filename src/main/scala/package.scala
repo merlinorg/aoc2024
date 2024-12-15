@@ -2,11 +2,13 @@ package org.merlin.aoc2024
 
 import scala.collection.immutable.NumericRange
 import scala.language.implicitConversions
-
 import scalaz.Monoid
 import scalaz.std.vector.*
 import scalaz.syntax.foldable.*
 import scalaz.syntax.functor.*
+
+import scala.collection.AbstractIterator
+import scala.compiletime.uninitialized
 
 // number extensions
 
@@ -33,6 +35,21 @@ extension [A](self: Iterator[A])
   def nth(n: Int): A                    = self.drop(n).next
   def findMap[B](f: A => Option[B]): B  = self.flatMap(f).next()
   def foldMap[B: Numeric](f: A => B): B = self.map(f).sum
+
+  def takeUntil(p: A => Boolean): Iterator[A] = new AbstractIterator[A]:
+    private var hd: A              = uninitialized
+    private var hdDefined: Boolean = false
+    private var tail: Iterator[A]  = self
+
+    def hasNext: Boolean = hdDefined || tail.hasNext && {
+      hd = tail.next()
+      hdDefined = true
+      if p(hd) then tail = Iterator.empty
+      true
+    }
+
+    def next(): A = if hasNext then { hdDefined = false; hd }
+    else Iterator.empty.next()
 
 private val WordRe = "\\S+".r
 
@@ -109,6 +126,9 @@ extension (self: Board)
 
   def locations: Vector[Loc] =
     self.indices.toVector.flatMap(y => self.head.indices.map(x => Loc(x, y)))
+
+  def update(loc: Loc, c: Char): Vector[String] =
+    self.updated(loc.y.toInt, self(loc.y.toInt).updated(loc.x.toInt, c))
 
   def split: (Board, Board) =
     val index = self.indexWhere(_.isEmpty)
