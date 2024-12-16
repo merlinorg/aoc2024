@@ -32,9 +32,10 @@ extension (self: Long)
 // iterator extensions
 
 extension [A](self: Iterator[A])
-  def nth(n: Int): A                    = self.drop(n).next
-  def findMap[B](f: A => Option[B]): B  = self.flatMap(f).next()
-  def foldMap[B: Numeric](f: A => B): B = self.map(f).sum
+  def nth(n: Int): A                         = self.drop(n).next
+  def findMap[B](f: A => Option[B]): B       = self.flatMap(f).next()
+  def findPF[B](f: PartialFunction[A, B]): B = findMap(f.lift)
+  def foldMap[B: Numeric](f: A => B): B      = self.map(f).sum
 
   def takeUntil(p: A => Boolean): Iterator[A] = new AbstractIterator[A]:
     private var hd: A              = uninitialized

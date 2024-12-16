@@ -21,24 +21,18 @@ object Day15 extends AoC:
   private def solve(map: Vector[String], dirs: Vector[String]): Long =
     val (_, result) = dirs
       .flatMap(_.map(Directions))
-      .foldLeft(map.find('@') -> map):
-        case ((loc, map), dir) =>
-          val wavefronts = Iterator
-            .iterate(Set(loc + dir)): wavefront =>
-              wavefront.flatMap: loc =>
-                map(loc) match
-                  case '[' if dir.vertical => Seq(loc + dir, loc + dir + Dir.E)
-                  case ']' if dir.vertical => Seq(loc + dir, loc + dir + Dir.W)
-                  case 'O' | '[' | ']'     => Seq(loc + dir)
-                  case _                   => Seq.empty
-            .takeUntil: wavefront =>
-              wavefront.isEmpty || wavefront.exists(map.is(_, '#'))
-            .toVector
-          if wavefronts.last.isEmpty then
-            loc + dir -> wavefronts.flatten.foldRight(map): (loc, acc) =>
-              val prev = loc + dir.reverse
-              acc.update(loc, map(prev)).update(prev, '.')
-          else (loc, map)
+      .foldLeft(map.find('@') -> map.map(_.replace('@', '.'))):
+        case ((loc, map0), dir) =>
+          Iterator
+            .iterate(Set(loc + dir) -> map0): (in, map) =>
+              val out     = in.filterNot(map.is(_, '.')) ++
+                (if dir.horizontal then Set.empty
+                 else in.filter(map.is(_, '[')).map(_ + Dir.E) ++ in.filter(map.is(_, ']')).map(_ + Dir.W))
+              val cleared = out.foldLeft(map)((map, loc) => map.update(loc, '.'))
+              out.map(_ + dir) -> in.foldLeft(cleared)((map, loc) => map.update(loc, map0(loc - dir)))
+            .findPF:
+              case (locs, map) if locs.isEmpty              => loc + dir -> map
+              case (locs, _) if locs.exists(map.is(_, '#')) => loc       -> map0
 
     result.locations.foldMap: loc =>
       if result.is(loc, 'O') || result.is(loc, '[') then loc.y * 100 + loc.x else 0
