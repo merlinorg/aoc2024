@@ -20,6 +20,8 @@ class AoCTest extends AnyFreeSpec with Matchers {
   test(Day14, 12, 236628054, 0, 7584)
   test(Day15, 10092, 1465523, 9021, 1471049)
   test(Day16, 7036, 88468, 45, 616)
+  test(Day16Alt, 7036, 88468, 45, 616)
+  test(Day16Mut, 7036, 88468, 45, 616)
 
   def test(day: AoC, sample1: Long, answer1: Long, sample2: Long, answer2: Long): Unit = {
     val name = day.getClass.getSimpleName.dropRight(1)

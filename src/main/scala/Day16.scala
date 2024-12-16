@@ -22,27 +22,27 @@ object Day16 extends AoC:
     visited: Set[(Loc, Dir)],
     queue: TreeMap[Long, Vector[Reindeer]]
   ):
-    private val head = queue.valuesIterator.next
+    private def headValues = queue.head(1)
 
     def nextState: ReindeerMaze =
-      val (nextVisited, nextQueue) = head.foldLeft((visited, queue - head.head.cost)):
-        case ((visited, queue), reindeer) =>
-          val nextQueue = reindeer.nextReindeers
+      headValues.foldLeft(copy(queue = queue.tail)): (acc, reindeer) =>
+        acc.copy(
+          visited = acc.visited + (reindeer.pos -> reindeer.dir),
+          queue = reindeer.nextReindeers
             .filter: reindeer =>
               !maze.is(reindeer.pos, '#') && !visited(reindeer.pos -> reindeer.dir)
-            .foldLeft(queue): (queue, reindeer) =>
+            .foldLeft(acc.queue): (queue, reindeer) =>
               queue.updatedWith(reindeer.cost):
                 case Some(reindeers) => Some(reindeers :+ reindeer)
                 case None            => Some(Vector(reindeer))
-          (visited + (reindeer.pos -> reindeer.dir), nextQueue)
-      ReindeerMaze(maze, end, nextVisited, nextQueue)
+        )
 
     def solution1: Option[Long] =
-      head.find(_.pos == end).map(_.cost)
+      headValues.find(_.pos == end).map(_.cost)
 
     def solution2: Option[Long] =
-      Option.when(head.exists(_.pos == end)):
-        head.filter(_.pos == end).flatMap(_.path).distinct.size
+      Option.when(headValues.exists(_.pos == end)):
+        headValues.filter(_.pos == end).flatMap(_.path).distinct.size
 
   object ReindeerMaze:
     def apply(lines: Vector[String]): ReindeerMaze =
