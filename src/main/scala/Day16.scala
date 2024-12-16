@@ -1,85 +1,52 @@
 package org.merlin.aoc2024
 
-import scalaz.*
-import scalaz.Scalaz.*
+import scala.collection.immutable.TreeMap
 
 object Day16 extends AoC:
-  case class Reindeer(cost: Long, pos: Loc, dir: Dir, path: Set[Loc]):
-    def nextReindeers: List[Reindeer] = List(
-      Reindeer(cost + 1, pos + dir, dir, path + (pos + dir)),
+  override def part1(lines: Vector[String]): Long =
+    Iterator.iterate(ReindeerMaze(lines))(_.nextState).findMap(_.solution1)
+
+  override def part2(lines: Vector[String]): Long =
+    Iterator.iterate(ReindeerMaze(lines))(_.nextState).findMap(_.solution2)
+
+  case class Reindeer(cost: Long, pos: Loc, dir: Dir, path: Vector[Loc]):
+    def nextReindeers: Vector[Reindeer] = Vector(
+      Reindeer(cost + 1, pos + dir, dir, path :+ (pos + dir)),
       Reindeer(cost + 1000, pos, dir.cw, path),
       Reindeer(cost + 1000, pos, dir.ccw, path)
     )
 
-  def part1(lines: Vector[String]): Long = Iterator.iterate(Part1BFS(lines))(_.nextState).findMap(_.solution)
-
-  case class Part1BFS(
-    lines: Vector[String],
-    costs: Map[(Loc, Dir), Long],
-    reindeers: Vector[Reindeer],
+  case class ReindeerMaze(
+    maze: Vector[String],
+    end: Loc,
+    visited: Set[(Loc, Dir)],
+    queue: TreeMap[Long, Vector[Reindeer]]
   ):
-    def nextState: Part1BFS =
-      val (nextCosts, nextReindeers) = reindeers.foldLeft((costs, Vector.empty[Reindeer])):
-        case ((costs, reindeers), reindeer) =>
-          if !lines.is(reindeer.pos, '#') && costs.get(reindeer.pos -> reindeer.dir).forall(_ > reindeer.cost) then
-            (costs + (reindeer.pos -> reindeer.dir -> reindeer.cost), reindeers ++ reindeer.nextReindeers)
-          else (costs, reindeers)
-      Part1BFS(lines, nextCosts, nextReindeers)
+    private val head = queue.valuesIterator.next
 
-    def solution: Option[Long] =
-      Option.when(reindeers.isEmpty)(cost)
+    def nextState: ReindeerMaze =
+      val (nextVisited, nextQueue) = head.foldLeft((visited, queue - head.head.cost)):
+        case ((visited, queue), reindeer) =>
+          val nextQueue = reindeer.nextReindeers
+            .filter: reindeer =>
+              !maze.is(reindeer.pos, '#') && !visited(reindeer.pos -> reindeer.dir)
+            .foldLeft(queue): (queue, reindeer) =>
+              queue.updatedWith(reindeer.cost):
+                case Some(reindeers) => Some(reindeers :+ reindeer)
+                case None            => Some(Vector(reindeer))
+          (visited + (reindeer.pos -> reindeer.dir), nextQueue)
+      ReindeerMaze(maze, end, nextVisited, nextQueue)
 
-    def cost: Long =
-      val end    = lines.find('E')
-      val result = for
-        dir  <- CardinalDirections
-        cost <- costs.get(end -> dir)
-      yield cost
-      result.min
+    def solution1: Option[Long] =
+      head.find(_.pos == end).map(_.cost)
 
-  object Part1BFS:
-    def apply(lines: Vector[String]): Part1BFS =
-      val start = lines.find('S')
-      new Part1BFS(lines, Map.empty, Vector(Reindeer(0, start, Dir.E, Set(start))))
+    def solution2: Option[Long] =
+      Option.when(head.exists(_.pos == end)):
+        head.filter(_.pos == end).flatMap(_.path).distinct.size
 
-  override def part2(lines: Vector[String]): Long = Iterator.iterate(Part2BFS(lines))(_.nextState).findMap(_.solution)
-
-  case class Part2BFS(
-    lines: Vector[String],
-    costs: Map[(Loc, Dir), Long],
-    reindeers: Vector[Reindeer],
-    bests: (Long, Set[Loc]),
-  ):
-    private val end = lines.find('E')
-
-    def nextState: Part2BFS =
-      val (nextCosts, nextBests, nextReindeers) = reindeers.foldLeft((costs, bests, Vector.empty[Reindeer])):
-        case ((costs, bests, reindeers), reindeer) =>
-          val nextBests =
-            if reindeer.pos != end || reindeer.cost > bests(0) then bests
-            else if reindeer.cost < bests(0) then reindeer.cost -> reindeer.path
-            else bests(0)                                       -> (bests(1) ++ reindeer.path)
-
-          val nextStates = reindeer.nextReindeers.filter: next =>
-            !lines.is(next.pos, '#') && costs.get(next.pos -> next.dir).forall(_ >= next.cost)
-
-          val nextCosts = costs ++ nextStates.map(next => next.pos -> next.dir -> next.cost)
-
-          (nextCosts, nextBests, reindeers ++ nextStates)
-
-      Part2BFS(lines, nextCosts, nextReindeers, nextBests)
-
-    def solution: Option[Long] =
-      Option.when(reindeers.isEmpty)(bests(1).size)
-
-  object Part2BFS:
-    def apply(lines: Vector[String]): Part2BFS =
-      val start = lines.find('S')
-      new Part2BFS(
-        lines,
-        Map(start -> Dir.E -> 0),
-        Vector(Reindeer(0, start, Dir.E, Set(start))),
-        Long.MaxValue -> Set.empty
-      )
+  object ReindeerMaze:
+    def apply(lines: Vector[String]): ReindeerMaze =
+      val (start, end) = (lines.find('S'), lines.find('E'))
+      new ReindeerMaze(lines, end, Set.empty, TreeMap(0L -> Vector(Reindeer(0, start, Dir.E, Vector(start)))))
 
 end Day16
