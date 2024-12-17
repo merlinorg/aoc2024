@@ -98,6 +98,8 @@ extension [A](self: Vector[A])
     self.slice(0, from) ++ insert ++ self.slice(from + length, self.length)
 
   def middle: A = self(self.length / 2)
+  
+  def get(i: Int): Option[A] = Option.when(i >= 0 && i < self.length)(self(i))
 
 // range extensions
 extension (self: NumericRange[Long])
@@ -208,3 +210,6 @@ extension (self: Vector[Loc]) def area: Long = self.zip(self.tail).map((a, b) =>
 
 object L:
   def unapply(s: String): Option[Long] = s.toLongOption
+
+extension (self: Boolean)
+  def flatOption[A](fa: => Option[A]): Option[A] = if self then fa else None

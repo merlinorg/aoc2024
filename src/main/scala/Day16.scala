@@ -10,11 +10,9 @@ object Day16 extends AoC:
     Iterator.iterate(ReindeerMaze(lines))(_.nextState).findMap(_.solution2)
 
   case class Reindeer(cost: Long, pos: Loc, dir: Dir, path: Vector[Loc]):
-    def nextReindeers: Vector[Reindeer] = Vector(
-      Reindeer(cost + 1, pos + dir, dir, path :+ (pos + dir)),
-      Reindeer(cost + 1000, pos, dir.cw, path),
-      Reindeer(cost + 1000, pos, dir.ccw, path)
-    )
+    def neighbours: Vector[Reindeer] =
+      Reindeer(cost + 1, pos + dir, dir, path :+ (pos + dir)) +: Vector(dir.cw, dir.ccw).map: rot =>
+        Reindeer(cost + 1001, pos + rot, rot, path :+ (pos + rot))
 
   case class ReindeerMaze(
     maze: Vector[String],
@@ -28,9 +26,9 @@ object Day16 extends AoC:
       headValues.foldLeft(copy(queue = queue.tail)): (acc, reindeer) =>
         acc.copy(
           visited = acc.visited + (reindeer.pos -> reindeer.dir),
-          queue = reindeer.nextReindeers
-            .filter: reindeer =>
-              !maze.is(reindeer.pos, '#') && !visited(reindeer.pos -> reindeer.dir)
+          queue = reindeer.neighbours
+            .filter: neighbour =>
+              !maze.is(neighbour.pos, '#') && !visited(neighbour.pos -> neighbour.dir)
             .foldLeft(acc.queue): (queue, reindeer) =>
               queue.updatedWith(reindeer.cost):
                 case Some(reindeers) => Some(reindeers :+ reindeer)
