@@ -3,6 +3,8 @@ package org.merlin.aoc2024
 import scalaz.*
 import scalaz.Scalaz.*
 
+import scala.annotation.tailrec
+
 object Day17 extends AoC:
   def part1(lines: Vector[String]): String =
     execute(parse(lines)).mkString(",")
@@ -14,7 +16,7 @@ object Day17 extends AoC:
     val cpu = parse(lines)
     Iterator
       .iterate(1L): a =>
-        if cpu.program.endsWith(execute(cpu.copy(a = a))) then a << 3 else if a % 8 < 7 then a + 1 else (a >> 3) + 1
+        if cpu.program.endsWith(execute(cpu.copy(a = a))) then a << 3 else (a + 1).dropz
       .findMap: a =>
         Option.when(execute(cpu.copy(a = a)) == cpu.program)(a)
   end part2
@@ -26,36 +28,25 @@ object Day17 extends AoC:
     import Instruction.*
 
     def step: CPU = (fromOrdinal(program(pc)), program(pc + 1)) match
-      case (Adv, operand) =>
-        copy(pc = pc + 2, a = a >> combo(operand))
-      case (Bxl, operand) =>
-        copy(pc = pc + 2, b = b ^ operand)
-      case (Bst, operand) =>
-        copy(pc = pc + 2, b = combo(operand) % 8)
-      case (Jnz, operand) =>
-        copy(pc = if a == 0 then pc + 2 else operand)
-      case (Bxc, _)       =>
-        copy(pc = pc + 2, b = b ^ c)
-      case (Out, operand) =>
-        copy(pc = pc + 2, out = out :+ (combo(operand) % 8).toInt)
-      case (Bdv, operand) =>
-        copy(pc = pc + 2, b = a >> combo(operand))
-      case (Cdv, operand) =>
-        copy(pc = pc + 2, c = a >> combo(operand))
+      case (Adv, operand) => copy(pc = pc + 2, a = a >> combo(operand))
+      case (Bxl, operand) => copy(pc = pc + 2, b = b ^ operand)
+      case (Bst, operand) => copy(pc = pc + 2, b = combo(operand) % 8)
+      case (Jnz, operand) => copy(pc = if a == 0 then pc + 2 else operand)
+      case (Bxc, _)       => copy(pc = pc + 2, b = b ^ c)
+      case (Out, operand) => copy(pc = pc + 2, out = out :+ (combo(operand) % 8).toInt)
+      case (Bdv, operand) => copy(pc = pc + 2, b = a >> combo(operand))
+      case (Cdv, operand) => copy(pc = pc + 2, c = a >> combo(operand))
 
     def output: Option[Vector[Int]] = Option.when(pc >= program.length)(out)
 
     private def combo(op: Long): Long =
       if op == 4 then a else if op == 5 then b else if op == 6 then c else op
 
-  object CPU:
-    val itanium: CPU = CPU(0, 0, 0, 0, Vector.empty, Vector.empty)
-
   enum Instruction:
     case Adv, Bxl, Bst, Jnz, Bxc, Out, Bdv, Cdv
 
   def parse(lines: Vector[String]): CPU =
-    lines.foldLeft(CPU.itanium):
+    lines.foldLeft(CPU(0, 0, 0, 0, Vector.empty, Vector.empty)):
       case (cpu, s"Register A: ${I(a)}") => cpu.copy(a = a)
       case (cpu, s"Register B: ${I(b)}") => cpu.copy(b = b)
       case (cpu, s"Register C: ${I(c)}") => cpu.copy(c = c)
@@ -64,5 +55,7 @@ object Day17 extends AoC:
 
   object I:
     def unapply(s: String): Option[Long] = s.toLongOption
+
+  extension (n: Long) @tailrec def dropz: Long = if n % 8 != 0 then n else (n >> 3).dropz
 
 end Day17

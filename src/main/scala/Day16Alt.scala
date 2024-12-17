@@ -68,7 +68,8 @@ object Day16Alt extends AoC:
 
   type Signum = -1 | 0 | 1
 
-  extension (signum: Signum) def reverse: Signum = if signum == 1 then -1 else if signum == -1 then 1 else 0
+  extension (signum: Signum)
+    def reverse: Signum = if signum == 1 then -1 else if signum == -1 then 1 else 0
 
   type Direction = (Signum, Signum)
 
