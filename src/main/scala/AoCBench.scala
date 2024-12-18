@@ -26,4 +26,8 @@ class AoCBench:
 
   @Benchmark
   def day16_mut_2(): Unit = Day16Mut.part2(Day16Mut.lines2)
+
+  @Benchmark
+  def day18_2(): Unit = Day18.part2(Day18.lines2)
+
 end AoCBench

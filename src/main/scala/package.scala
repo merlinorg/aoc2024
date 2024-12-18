@@ -17,6 +17,7 @@ extension (self: Int)
     val mod = self % n
     if mod < 0 then mod + n else mod
   inline def even: Boolean   = self % 2 == 0
+  infix def mid(n: Int): Int = (self + n) / 2
 
 extension (self: Long)
   inline def >=<(n: Long): Boolean       = self >= 0 && self < n
