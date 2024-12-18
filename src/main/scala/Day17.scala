@@ -47,14 +47,11 @@ object Day17 extends AoC:
 
   def parse(lines: Vector[String]): CPU =
     lines.foldLeft(CPU(0, 0, 0, 0, Vector.empty, Vector.empty)):
-      case (cpu, s"Register A: ${I(a)}") => cpu.copy(a = a)
-      case (cpu, s"Register B: ${I(b)}") => cpu.copy(b = b)
-      case (cpu, s"Register C: ${I(c)}") => cpu.copy(c = c)
+      case (cpu, s"Register A: ${L(a)}") => cpu.copy(a = a)
+      case (cpu, s"Register B: ${L(b)}") => cpu.copy(b = b)
+      case (cpu, s"Register C: ${L(c)}") => cpu.copy(c = c)
       case (cpu, s"Program: ${p}")       => cpu.copy(program = p.numbers.map(_.toInt))
       case (cpu, _)                      => cpu
-
-  object I:
-    def unapply(s: String): Option[Long] = s.toLongOption
 
   extension (n: Long) @tailrec def dropz: Long = if n % 8 != 0 then n else (n >> 3).dropz
 

@@ -69,6 +69,10 @@ extension (self: Vector[String]) def numbers: Vector[Vector[Long]] = self.map(_.
 extension [A](self: Vector[A])
   def mapToMap[B, C](f: A => (B, C)): Map[B, C] = self.map(f).toMap
 
+  def collectToMap[B, C](pf: PartialFunction[A, (B, C)]): Map[B, C] = self.collect(pf).toMap
+
+  def collectToSet[B](pf: PartialFunction[A, B]): Set[B] = self.collect(pf).toSet
+
   def mapTo[B](f: A => B): Map[A, B] = self.fproduct(f).toMap
 
   def flatFoldMap[B](f: A => Iterable[B])(using Monoid[B]): B = self.flatMap(f).suml
@@ -98,7 +102,7 @@ extension [A](self: Vector[A])
     self.slice(0, from) ++ insert ++ self.slice(from + length, self.length)
 
   def middle: A = self(self.length / 2)
-  
+
   def get(i: Int): Option[A] = Option.when(i >= 0 && i < self.length)(self(i))
 
 // range extensions
@@ -178,13 +182,19 @@ final case class Loc(x: Long, y: Long):
 
   inline def +(addend: Loc): Loc = Loc(x + addend.x, y + addend.y)
 
-  inline def >=<(board: Board): Boolean = x >=< board.head.length && y >=< board.length
+  inline def >=<(board: Board): Boolean = this >=< (board.head.length, board.length)
 
   inline def <>=(board: Board): Boolean = !(this >=< board)
+
+  inline def >=<(size: Long): Boolean = this >=< (size, size)
+
+  inline def >=<(w: Long, h: Long): Boolean = x >=< w && y >=< h
 
   def adjacents: Vector[Loc] = CardinalDirections.map(this + _)
 
   def manhattan(l: Loc): Long = (l.x - x).abs + (l.y - y).abs
+
+  override def toString: String = s"$x,$y"
 
 given Ordering[Loc] = Ordering.by(Tuple.fromProductTyped)
 
