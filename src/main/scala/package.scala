@@ -224,3 +224,6 @@ object L:
 
 extension (self: Boolean)
   def flatOption[A](fa: => Option[A]): Option[A] = if self then fa else None
+
+def Y[A, B](f: (A => B, A) => B, x: A): B =
+  f(v => Y(f, v), x)

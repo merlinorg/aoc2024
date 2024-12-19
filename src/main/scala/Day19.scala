@@ -7,11 +7,8 @@ object Day19 extends AoC:
   def part1(lines: Vector[String]): Long =
     val (towels, patterns) = parse(lines)
 
-    def solvable(pattern: String): Boolean =
-      pattern.isEmpty || towels.exists: towel =>
-        pattern.startsWith(towel) && solvable(pattern.substring(towel.length))
-
-    patterns.count(solvable)
+    patterns.count(Y[String, Boolean]((self, pattern) => pattern.isEmpty || towels.exists: towel =>
+      pattern.startsWith(towel) && self(pattern.substring(towel.length)), _))
   end part1
 
   override def part2(lines: Vector[String]): Long =
