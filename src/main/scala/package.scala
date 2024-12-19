@@ -8,6 +8,7 @@ import scalaz.syntax.foldable.*
 import scalaz.syntax.functor.*
 
 import scala.collection.AbstractIterator
+import scala.collection.mutable
 import scala.compiletime.uninitialized
 
 // number extensions
@@ -58,10 +59,11 @@ private val WordRe = "\\S+".r
 // string extensions
 
 extension (self: String)
-  def numbers: Vector[Long]          = NumRe.findAllIn(self).map(_.toLong).toVector
-  def words: Vector[String]          = WordRe.findAllIn(self).toVector
-  def commaSeparated: Vector[String] = self.split(',').toVector
-  def characters: Vector[String]     = self.split("").toVector
+  def numbers: Vector[Long]                 = NumRe.findAllIn(self).map(_.toLong).toVector
+  def words: Vector[String]                 = WordRe.findAllIn(self).toVector
+  def commaSeparated: Vector[String]        = self.split(',').toVector
+  def characters: Vector[String]            = self.split("").toVector
+  def dropPrefix(p: String): Option[String] = Option.when(self.startsWith(p))(self.drop(p.length))
 
 // vector extensions
 
@@ -222,8 +224,9 @@ extension (self: Vector[Loc]) def area: Long = self.zip(self.tail).map((a, b) =>
 object L:
   def unapply(s: String): Option[Long] = s.toLongOption
 
-extension (self: Boolean)
-  def flatOption[A](fa: => Option[A]): Option[A] = if self then fa else None
+extension (self: Boolean) def flatOption[A](fa: => Option[A]): Option[A] = if self then fa else None
 
 def Y[A, B](f: (A => B, A) => B, x: A): B =
   f(v => Y(f, v), x)
+
+extension [A, B](self: mutable.Map[A, B]) def memo(a: A)(b: => B): B = self.getOrElseUpdate(a, b)
