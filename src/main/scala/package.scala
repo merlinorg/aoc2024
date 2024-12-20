@@ -7,6 +7,7 @@ import scalaz.std.vector.*
 import scalaz.syntax.foldable.*
 import scalaz.syntax.functor.*
 
+import scala.annotation.tailrec
 import scala.collection.AbstractIterator
 import scala.collection.mutable
 import scala.compiletime.uninitialized
@@ -230,3 +231,6 @@ def Y[A, B](f: (A => B, A) => B, x: A): B =
   f(v => Y(f, v), x)
 
 extension [A, B](self: mutable.Map[A, B]) def memo(a: A)(b: => B): B = self.getOrElseUpdate(a, b)
+
+def lcm(list: Iterable[Long]): Long = list.foldLeft(1L)((a, b) => b * a / gcd(a, b))
+@tailrec def gcd(x: Long, y: Long): Long = if y == 0 then x else gcd(y, x % y)
