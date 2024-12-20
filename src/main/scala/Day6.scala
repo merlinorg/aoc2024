@@ -7,7 +7,7 @@ import Scalaz.*
 
 object Day6 extends AoC:
 
-  override def part1(board: Board): Long =
+  def part1(board: Board): Long =
     Iterator.iterate(Guard1FSM(board))(_.next).findMap(_.solution)
   end part1
 
@@ -25,7 +25,7 @@ object Day6 extends AoC:
     def apply(board: Board): Guard1FSM =
       Guard1FSM(board.find('^'), Dir.N, board, Set.empty)
 
-  override def part2(board: Board): Long =
+  def part2(board: Board): Long =
     board.locations.par.count: obstacle =>
       board.is(obstacle, '.') && Iterator.iterate(Guard2FSM(board, obstacle))(_.next).findMap(_.solution)
   end part2

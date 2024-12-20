@@ -3,10 +3,10 @@ package org.merlin.aoc2024
 import scala.collection.immutable.TreeMap
 
 object Day16 extends AoC:
-  override def part1(lines: Vector[String]): Long =
+  def part1(lines: Vector[String]): Long =
     Iterator.iterate(ReindeerMaze(lines))(_.nextState).findMap(_.solution1)
 
-  override def part2(lines: Vector[String]): Long =
+  def part2(lines: Vector[String]): Long =
     Iterator.iterate(ReindeerMaze(lines))(_.nextState).findMap(_.solution2)
 
   case class Reindeer(cost: Long, pos: Loc, dir: Dir, path: Vector[Loc]):

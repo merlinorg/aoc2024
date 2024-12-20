@@ -7,14 +7,14 @@ object Day3 extends AoC:
 
   val Mul1Re = """mul\((\d+),(\d+)\)""".r
 
-  override def part1(lines: Vector[String]): Long =
+  def part1(lines: Vector[String]): Long =
     lines.foldMap: line =>
       Mul1Re.findAllIn(line).toVector.foldMap(_.numbers.product)
   end part1
 
   val Mul2Re = """mul\((\d+),(\d+)\)|do\(\)|don't\(\)""".r
 
-  override def part2(lines: Vector[String]): Long =
+  def part2(lines: Vector[String]): Long =
     Mul2Re
       .findAllIn(lines.mkString)
       .toVector

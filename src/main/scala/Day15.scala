@@ -9,7 +9,7 @@ object Day15 extends AoC:
     solve(map, dirs)
   end part1
 
-  override def part2(lines: Vector[String]): Long =
+  def part2(lines: Vector[String]): Long =
     val (map, dirs) = lines.span(_.nonEmpty)
     val expanded    = map.map: row =>
       row.map(c => if c == 'O' then "[]" else s"$c$c").mkString
@@ -30,7 +30,7 @@ object Day15 extends AoC:
                  else in.filter(map.is(_, '[')).map(_ + Dir.E) ++ in.filter(map.is(_, ']')).map(_ + Dir.W))
               val cleared = out.foldLeft(map)((map, loc) => map.update(loc, '.'))
               out.map(_ + dir) -> in.foldLeft(cleared)((map, loc) => map.update(loc, map0(loc - dir)))
-            .findPF:
+            .findCollect:
               case (locs, map) if locs.isEmpty              => loc + dir -> map
               case (locs, _) if locs.exists(map.is(_, '#')) => loc       -> map0
 

@@ -5,7 +5,7 @@ import Scalaz.*
 
 object Day9 extends AoC:
 
-  override def part1(lines: Vector[String]): Long =
+  def part1(lines: Vector[String]): Long =
     Iterator
       .unfold(parse(lines)):
         case (file +: files, blank +: blanks) if blank.pos < file.pos =>
@@ -21,7 +21,7 @@ object Day9 extends AoC:
       .foldMap(_.value)
   end part1
 
-  override def part2(lines: Vector[String]): Long =
+  def part2(lines: Vector[String]): Long =
     Iterator
       .unfold(parse(lines)):
         case (file +: files, blanks) =>

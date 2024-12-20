@@ -5,7 +5,7 @@ import Scalaz.*
 
 object Day4 extends AoC:
 
-  override def part1(board: Board): Long =
+  def part1(board: Board): Long =
     board.locations.foldMap: loc =>
       Dir.values.count: dir =>
         "XMAS".zipWithIndex.forall:
@@ -13,7 +13,7 @@ object Day4 extends AoC:
             board.is(loc + dir * index, c)
   end part1
 
-  override def part2(board: Board): Long =
+  def part2(board: Board): Long =
     board.locations.count: loc =>
       board.is(loc, 'A') &&
         2 == OrdinalDirections.count: dir =>

@@ -12,7 +12,7 @@ object Day17 extends AoC:
 
   // Observe that the core of the program is ... a = a >> 3 ... jnz 0
   // Hypostulate that we just need to twiddle octal triads from the top down.
-  override def part2(lines: Vector[String]): Long =
+  def part2(lines: Vector[String]): Long =
     val cpu = parse(lines)
     Iterator
       .iterate(1L): a =>

@@ -5,12 +5,12 @@ import scalaz.Scalaz.*
 
 object Day12 extends AoC:
 
-  override def part1(board: Board): Long =
+  def part1(board: Board): Long =
     parse(board).foldMap: region =>
       region.area * region.perimeter
   end part1
 
-  override def part2(board: Board): Long =
+  def part2(board: Board): Long =
     parse(board).foldMap: region =>
       region.area * region.sides
   end part2

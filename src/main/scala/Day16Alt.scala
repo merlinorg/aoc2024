@@ -3,9 +3,9 @@ package org.merlin.aoc2024
 import scala.collection.immutable.TreeMap
 
 object Day16Alt extends AoC:
-  override def part1(lines: Vector[String]): Long = part1(lines.mkString("\n"))
+  def part1(lines: Vector[String]): Long = part1(lines.mkString("\n"))
 
-  override def part2(lines: Vector[String]): Long = part2(lines.mkString("\n"))
+  def part2(lines: Vector[String]): Long = part2(lines.mkString("\n"))
 
   def part1(input: String): Int =
     Iterator
@@ -40,20 +40,20 @@ object Day16Alt extends AoC:
   ):
     def nextState: ReindeerState =
       val (reindeer, rest) = queue.dequeue
-  
+
       val neighbours = reindeer.neighbours.filter: next =>
         maze(next.pos) != '#' && !visited(next.pos -> next.dir)
-  
+
       ReindeerState(
         maze,
         end,
         rest.enqueueAll(neighbours),
         visited + (reindeer.pos -> reindeer.dir),
       )
-  
+
     def solution1: Option[Int] =
       Option(queue.firstValue).filter(_.pos == end).map(_.score)
-  
+
     def solution2: Option[Int] =
       Option.when(queue.firstValue.pos == end):
         queue.firstValues.filter(_.pos == end).flatMap(_.path).distinct.size

@@ -13,7 +13,7 @@ object Day14 extends AoC:
     (robots.groupBy(r => quadrant(r.pos)) - None).values.map(_.size).product
   end part1
 
-  override def part2(lines: Vector[String]): Long =
+  def part2(lines: Vector[String]): Long =
     given dim: XY = bathroom(lines)
     Iterator
       .iterate(parse(lines))(_.map(_.move))

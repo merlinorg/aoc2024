@@ -16,7 +16,7 @@ object Day19 extends AoC:
     )
   end part1
 
-  override def part2(lines: Vector[String]): Long =
+  def part2(lines: Vector[String]): Long =
     val (allTowels, patterns) = parse(lines)
     Iterator
       .iterate((Vector(patterns.head -> allTowels), Map("" -> 1L), patterns, 0L)):

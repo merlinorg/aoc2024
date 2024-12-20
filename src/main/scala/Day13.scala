@@ -5,9 +5,9 @@ import Scalaz.*
 
 object Day13 extends AoC:
 
-  override def part1(lines: Vector[String]): Long = parse(lines).foldMap(_.cost)
+  def part1(lines: Vector[String]): Long = parse(lines).foldMap(_.cost)
 
-  override def part2(lines: Vector[String]): Long =
+  def part2(lines: Vector[String]): Long =
     parse(lines).map(g => g.copy(x = g.x + 10000000000000L, y = g.y + 10000000000000L)).foldMap(_.cost)
 
   def parse(lines: Vector[String]): Vector[Game] =

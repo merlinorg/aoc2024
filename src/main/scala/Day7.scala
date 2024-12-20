@@ -5,7 +5,7 @@ import scalaz.Scalaz.*
 
 object Day7 extends AoC:
 
-  override def part1(lines: Vector[String]): Long =
+  def part1(lines: Vector[String]): Long =
     parse(lines).foldMap:
       case (total, numbers) =>
         def solvable(numbers: Vector[Long], sum: Long = 0): Boolean = numbers match
@@ -14,7 +14,7 @@ object Day7 extends AoC:
         solvable(numbers) ?? total
   end part1
 
-  override def part2(lines: Vector[String]): Long =
+  def part2(lines: Vector[String]): Long =
     parse(lines).foldMap:
       case (total, numbers) =>
         def solvable(numbers: Vector[Long], sum: Long = 0): Boolean = numbers match

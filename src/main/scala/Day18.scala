@@ -11,7 +11,7 @@ object Day18 extends AoC:
     solve(Search(walls, take, size), solution1)
   end part1
 
-  override def part2(lines: Vector[String]): Loc =
+  def part2(lines: Vector[String]): Loc =
     val (size, take, walls) = parse(lines)
     Iterator
       .iterate(take + 1 -> walls.size): (i0, i1) =>

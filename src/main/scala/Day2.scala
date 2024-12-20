@@ -5,11 +5,11 @@ import Scalaz.*
 
 object Day2 extends AoC:
 
-  override def part1(lines: Vector[String]): Long =
+  def part1(lines: Vector[String]): Long =
     lines.numbers.count(safe)
   end part1
 
-  override def part2(lines: Vector[String]): Long =
+  def part2(lines: Vector[String]): Long =
     lines.numbers.count: numbers =>
       safe(numbers) || numbers.indices.exists: index =>
         safe(numbers.splice(index, 1))

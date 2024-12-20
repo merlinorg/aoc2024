@@ -5,9 +5,9 @@ import scala.collection.mutable
 object Day16Mut extends AoC:
   import Day16Alt.{Reindeer, findPosition, East, Position, Direction}
 
-  override def part1(lines: Vector[String]): Long = part1(lines.mkString("\n"))
+  def part1(lines: Vector[String]): Long = part1(lines.mkString("\n"))
 
-  override def part2(lines: Vector[String]): Long = part2(lines.mkString("\n"))
+  def part2(lines: Vector[String]): Long = part2(lines.mkString("\n"))
 
   def part1(input: String): Int =
     val (reindeer, _) = solve(input)

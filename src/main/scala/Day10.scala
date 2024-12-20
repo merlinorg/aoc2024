@@ -5,11 +5,11 @@ import scalaz.Scalaz.*
 
 object Day10 extends AoC:
 
-  override def part1(board: Board): Long =
+  def part1(board: Board): Long =
     trails(board).foldMap(_.toSet.size)
   end part1
 
-  override def part2(board: Board): Long =
+  def part2(board: Board): Long =
     trails(board).foldMap(_.size)
   end part2
 

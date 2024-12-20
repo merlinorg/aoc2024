@@ -35,10 +35,11 @@ extension (self: Long)
 // iterator extensions
 
 extension [A](self: Iterator[A])
-  def nth(n: Int): A                         = self.drop(n).next
-  def findMap[B](f: A => Option[B]): B       = self.flatMap(f).next()
-  def findPF[B](f: PartialFunction[A, B]): B = findMap(f.lift)
-  def foldMap[B: Numeric](f: A => B): B      = self.map(f).sum
+  def nth(n: Int): A                                       = self.drop(n).next
+  def findMap[B](f: A => Option[B]): B                     = self.flatMap(f).next()
+  def findCollect[B](f: PartialFunction[A, B]): B          = findMap(f.lift)
+  def foldMap[B: Numeric](f: A => B): B                    = self.map(f).sum
+  def foldCollect[B: Numeric](f: PartialFunction[A, B]): B = self.flatMap(f.lift).sum
 
   def takeUntil(p: A => Boolean): Iterator[A] = new AbstractIterator[A]:
     private var hd: A              = uninitialized
@@ -232,5 +233,5 @@ def Y[A, B](f: (A => B, A) => B, x: A): B =
 
 extension [A, B](self: mutable.Map[A, B]) def memo(a: A)(b: => B): B = self.getOrElseUpdate(a, b)
 
-def lcm(list: Iterable[Long]): Long = list.foldLeft(1L)((a, b) => b * a / gcd(a, b))
+def lcm(list: Iterable[Long]): Long      = list.foldLeft(1L)((a, b) => b * a / gcd(a, b))
 @tailrec def gcd(x: Long, y: Long): Long = if y == 0 then x else gcd(y, x % y)

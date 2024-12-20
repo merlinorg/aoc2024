@@ -5,7 +5,7 @@ import scalaz.Scalaz.*
 
 object Day8 extends AoC:
 
-  override def part1(board: Board): Long =
+  def part1(board: Board): Long =
     parse(board)
       .flatMap: locations =>
         locations.allPairs.flatMap: (a, b) =>
@@ -14,7 +14,7 @@ object Day8 extends AoC:
       .size
   end part1
 
-  override def part2(board: Board): Long =
+  def part2(board: Board): Long =
     parse(board)
       .flatMap: locations =>
         locations.allPairs.flatMap: (a, b) =>

@@ -5,9 +5,9 @@ import scalaz.Scalaz.*
 
 object Day11 extends AoC:
 
-  override def part1(lines: Vector[String]): Long = blink(lines, 25)
+  def part1(lines: Vector[String]): Long = blink(lines, 25)
 
-  override def part2(lines: Vector[String]): Long = blink(lines, 75)
+  def part2(lines: Vector[String]): Long = blink(lines, 75)
 
   private def blink(lines: Vector[String], iterations: Int): Long =
     Iterator

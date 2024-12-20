@@ -13,7 +13,7 @@ object Day19Mut extends AoC:
     patterns.count(solve)
   end part1
 
-  override def part2(lines: Vector[String]): Long =
+  def part2(lines: Vector[String]): Long =
     val (towels, patterns)           = parse(lines)
     val cache                        = mutable.Map("" -> 1L)
     def solve(pattern: String): Long = cache.memo(pattern):
