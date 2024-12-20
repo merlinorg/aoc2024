@@ -6,27 +6,24 @@ import scalaz.Scalaz.*
 import scala.annotation.tailrec
 
 object Day20 extends AoC:
-  def part1(maze: Vector[String]): Long =
-    solve(maze, 2)
-  end part1
+  def part1(maze: Vector[String]): Long = solve(maze, 2)
 
-  override def part2(maze: Vector[String]): Long =
-    solve(maze, 20)
-  end part2
+  override def part2(maze: Vector[String]): Long = solve(maze, 20)
 
   def solve(maze: Vector[String], cheatable: Long): Long =
-    val start     = maze.find('S')
-    val picos     = if maze.length == 15 then 50 else 100
-    val distances = walk(maze, start, Map(start -> 0L))
+    val start = maze.find('S')
+    val picos = if maze.length == 15 then 50 else 100
 
-    distances.toVector.allPairs.count:
-      case ((loc0, dst0), (loc1, dst1)) =>
-        val dist = loc0.manhattan(loc1)
-        (dist <= cheatable) && ((dst1 - dst0).abs - dist >= picos)
+    val path = Vector((start, 0)) ++ Iterator.unfold((start, start, 1)): (prev, cur, steps) =>
+      cur.adjacents
+        .find(loc => !maze.is(loc, '#') && loc != prev)
+        .map(loc => ((loc, steps), (cur, loc, steps + 1)))
 
-  @tailrec def walk(maze: Vector[String], loc: Loc, distances: Map[Loc, Long]): Map[Loc, Long] =
-    loc.adjacents.find(loc => !maze.is(loc, '#') && !distances.contains(loc)) match
-      case Some(nxt) => walk(maze, nxt, distances + (nxt -> distances.size))
-      case None      => distances
+    path.tails.foldMap:
+      case (loc0, dst0) +: tail =>
+        tail.drop(picos).count: (loc1, dst1) =>
+          val dist = loc0.manhattan(loc1)
+          (dist <= cheatable) && (dst1 - dst0 - dist >= picos)
+      case _                    => 0
 
 end Day20

@@ -30,4 +30,7 @@ class AoCBench:
   @Benchmark
   def day18_2(): Unit = Day18.part2(Day18.lines2)
 
+  @Benchmark
+  def day20_2(): Unit = Day20.part2(Day20.lines2)
+
 end AoCBench
