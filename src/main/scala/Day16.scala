@@ -44,7 +44,7 @@ object Day16 extends AoC:
 
   object ReindeerMaze:
     def apply(lines: Vector[String]): ReindeerMaze =
-      val (start, end) = (lines.find('S'), lines.find('E'))
+      val (start, end) = (lines.loc('S'), lines.loc('E'))
       new ReindeerMaze(lines, end, Set.empty, TreeMap(0L -> Vector(Reindeer(0, start, Dir.E, Vector(start)))))
 
 end Day16

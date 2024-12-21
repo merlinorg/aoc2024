@@ -23,7 +23,7 @@ object Day6 extends AoC:
 
   object Guard1FSM:
     def apply(board: Board): Guard1FSM =
-      Guard1FSM(board.find('^'), Dir.N, board, Set.empty)
+      Guard1FSM(board.loc('^'), Dir.N, board, Set.empty)
 
   def part2(board: Board): Long =
     board.locations.par.count: obstacle =>
@@ -44,6 +44,6 @@ object Day6 extends AoC:
 
   object Guard2FSM:
     def apply(board: Board, obstacle: Loc): Guard2FSM =
-      Guard2FSM(board.find('^'), Dir.N, board, obstacle, Set.empty)
+      Guard2FSM(board.loc('^'), Dir.N, board, obstacle, Set.empty)
 
 end Day6

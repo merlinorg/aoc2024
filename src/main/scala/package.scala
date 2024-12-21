@@ -104,6 +104,8 @@ extension [A](self: Vector[A])
   // all non-self element pairs
   def allPairs: Vector[(A, A)] = self.tails.toVector.tail.flatMap(self.zip)
 
+  def sliding2: Vector[(A, A)] = self.sliding(2).map(s => (s(0), s(1))).toVector
+
   def splice(from: Int, length: Int, insert: Vector[A] = Vector.empty): Vector[A] =
     self.slice(0, from) ++ insert ++ self.slice(from + length, self.length)
 
@@ -134,7 +136,7 @@ extension (self: Board)
   def get(loc: Loc): Option[Char]      = Option.when(loc >=< self)(self(loc))
   def is(loc: Loc, c: Int): Boolean    = loc >=< self && self(loc) == c
   def is(a: Loc, b: Loc): Boolean      = get(a) == get(b)
-  def find(char: Char): Loc            = locations.find(apply(_) == char).get
+  def loc(char: Char): Loc              = locations.find(apply(_) == char).get
   def findAll(char: Char): Vector[Loc] = locations.filter(apply(_) == char)
 
   def locations: Vector[Loc] =

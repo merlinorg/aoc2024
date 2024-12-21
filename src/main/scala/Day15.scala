@@ -21,7 +21,7 @@ object Day15 extends AoC:
   private def solve(map: Vector[String], dirs: Vector[String]): Long =
     val (_, result) = dirs
       .flatMap(_.map(Directions))
-      .foldLeft(map.find('@') -> map.map(_.replace('@', '.'))):
+      .foldLeft(map.loc('@') -> map.map(_.replace('@', '.'))):
         case ((loc, map0), dir) =>
           Iterator
             .iterate(Set(loc + dir) -> map0): (in, map) =>

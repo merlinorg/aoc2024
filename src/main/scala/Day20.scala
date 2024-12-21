@@ -11,7 +11,7 @@ object Day20 extends AoC:
   def part2(maze: Vector[String]): Long = solve(maze, 20)
 
   def solve(maze: Vector[String], cheat: Long): Long =
-    val start = maze.find('S')
+    val start = maze.loc('S')
     val picos = if maze.length == 15 then 50 else 100
 
     val path = Vector((start, 0)) ++ Iterator.unfold((start, start, 1)): (prev, cur, steps) =>

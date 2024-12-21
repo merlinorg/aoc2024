@@ -24,13 +24,11 @@ object Day21 extends AoC:
 
     def shortedSolution(sequence: Vector[Char], stage: Int): Long =
       val pad = if stage == 0 then Keypad else Dirpad
-      sequence.foldLeftMap(pad.find('A') -> 0L)(_._2):
-        case ((src, total), char) =>
-          val dst = pad.find(char)
-          dst -> (total + shortestMove(src, dst, stage))
+      ('A' +: sequence).map(pad.loc).sliding2.foldMap:
+        case (src, dst) => shortestMove(src, dst, stage)
 
     lines.foldMap: line =>
-      shortedSolution(line.toVector, 0) * line.numbers.head
+      shortedSolution(line.toVector, 0) * line.init.toLong
 
   private val Keypad  = Vector("789", "456", "123", " 0A")
   private val Dirpad  = Vector(" ^A", "<v>")
