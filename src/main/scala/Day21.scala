@@ -14,13 +14,13 @@ object Day21 extends AoC:
     val cache = mutable.Map.empty[(Loc, Loc, Int), Long]
 
     def shortestMove(src: Loc, dst: Loc, stage: Int): Long = cache.memo((src, dst, stage)):
-      val pad     = if stage == 0 then Keypad else Dirpad
-      val answers = bfs((src, Vector.empty[Char])):
-        case (loc, keys) if loc == dst =>
-          Right(if stage < robots then shortedSolution(keys :+ 'A', stage + 1) else keys.length + 1L)
-        case (loc, keys)               =>
-          Left((loc +-> dst).filterNot(dir => pad.is(loc + dir, ' ')).map(dir => (loc + dir, keys :+ DirKeys(dir))))
-      answers.min
+      given Monoid[Long] = Monoid.instance(_ min _, Long.MaxValue)
+      val pad            = if stage == 0 then Keypad else Dirpad
+      bfsFoldl((src, Vector.empty[Char])): (loc, keys) =>
+        (loc == dst).either(
+          if stage < robots then shortedSolution(keys :+ 'A', stage + 1) else keys.length + 1L,
+          (loc +-> dst).filterNot(dir => pad.is(loc + dir, ' ')).map(dir => (loc + dir, keys :+ DirKeys(dir)))
+        )
 
     def shortedSolution(sequence: Vector[Char], stage: Int): Long =
       val pad = if stage == 0 then Keypad else Dirpad

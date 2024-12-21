@@ -84,7 +84,7 @@ extension [A](self: Vector[A])
   def findMap[B](f: A => Option[B]): B = self.flatMap(f).head
 
   def foldLeftMap[B, C](z: B)(f: B => C)(op: (B, A) => B): C = f(self.foldLeft(z)(op))
-  
+
   // maps a vector with an accumulator, returning the final accumulator and values
   def mapAcc[B, C](c0: C)(f: (C, A) => (C, B)): (C, Vector[B]) =
     self.foldLeft(c0 -> Vector.empty[B]):
@@ -231,21 +231,29 @@ extension (self: Vector[Loc]) def area: Long = self.zip(self.tail).map((a, b) =>
 object L:
   def unapply(s: String): Option[Long] = s.toLongOption
 
-extension (self: Boolean) def flatOption[A](fa: => Option[A]): Option[A] = if self then fa else None
+extension (self: Boolean)
+  def flatOption[A](fa: => Option[A]): Option[A]   = if self then fa else None
+  def either[A, B](b: => B, a: => A): Either[A, B] = Either.cond(self, b, a)
 
 def Y[A, B](f: (A => B, A) => B, x: A): B =
   f(v => Y(f, v), x)
 
 extension [A, B](self: mutable.Map[A, B]) def memo(a: A)(b: => B): B = self.getOrElseUpdate(a, b)
 
-def bfs[A, B](a: A)(f: A => Either[Iterable[A], B]): Vector[B] =
-  val results = mutable.ArrayBuffer.empty[B]
-  val queue = mutable.Queue(a)
+private def bfsImpl[A, B, C](a: A, z: C, append: (C, => B) => C)(f: A => Either[Iterable[A], B]): C =
+  var result = z
+  val queue  = mutable.Queue(a)
   while queue.nonEmpty do
     f(queue.dequeue()) match
-      case Right(result) => results += result
+      case Right(r)     => result = append(result, r)
       case Left(states) => queue.enqueueAll(states)
-  results.toVector
+  result
+
+def bfsMap[A, B](a: A)(f: A => Either[Iterable[A], B]): Vector[B] =
+  bfsImpl[A, B, mutable.ArrayBuffer[B]](a, mutable.ArrayBuffer.empty[B], _ += _)(f).toVector
+
+def bfsFoldl[A, B](a: A)(f: A => Either[Iterable[A], B])(using M: Monoid[B]): B =
+  bfsImpl(a, M.zero, M.append)(f)
 
 def lcm(list: Iterable[Long]): Long      = list.foldLeft(1L)((a, b) => b * a / gcd(a, b))
 @tailrec def gcd(x: Long, y: Long): Long = if y == 0 then x else gcd(y, x % y)
