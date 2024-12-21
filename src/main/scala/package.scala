@@ -1,16 +1,15 @@
 package org.merlin.aoc2024
 
-import scala.collection.immutable.NumericRange
-import scala.language.implicitConversions
 import scalaz.Monoid
 import scalaz.std.vector.*
 import scalaz.syntax.foldable.*
 import scalaz.syntax.functor.*
 
-import scala.annotation.tailrec
-import scala.collection.AbstractIterator
-import scala.collection.mutable
+import scala.annotation.{tailrec, targetName}
+import scala.collection.immutable.NumericRange
+import scala.collection.{AbstractIterator, mutable}
 import scala.compiletime.uninitialized
+import scala.language.implicitConversions
 
 // number extensions
 
@@ -84,6 +83,8 @@ extension [A](self: Vector[A])
 
   def findMap[B](f: A => Option[B]): B = self.flatMap(f).head
 
+  def foldLeftMap[B, C](z: B)(f: B => C)(op: (B, A) => B): C = f(self.foldLeft(z)(op))
+  
   // maps a vector with an accumulator, returning the final accumulator and values
   def mapAcc[B, C](c0: C)(f: (C, A) => (C, B)): (C, Vector[B]) =
     self.foldLeft(c0 -> Vector.empty[B]):
@@ -199,6 +200,10 @@ final case class Loc(x: Long, y: Long):
 
   def manhattan(l: Loc): Long = (l.x - x).abs + (l.y - y).abs
 
+  @targetName("manhattanMoves") def +->(dst: Loc): Vector[Dir] =
+    Option.when(x != dst.x)(if dst.x < x then Dir.W else Dir.E).toVector ++
+      Option.when(y != dst.y)(if dst.y < y then Dir.N else Dir.S)
+
   override def toString: String = s"$x,$y"
 
 given Ordering[Loc] = Ordering.by(Tuple.fromProductTyped)
@@ -232,6 +237,15 @@ def Y[A, B](f: (A => B, A) => B, x: A): B =
   f(v => Y(f, v), x)
 
 extension [A, B](self: mutable.Map[A, B]) def memo(a: A)(b: => B): B = self.getOrElseUpdate(a, b)
+
+def bfs[A, B](a: A)(f: A => Either[Iterable[A], B]): Vector[B] =
+  val results = mutable.ArrayBuffer.empty[B]
+  val queue = mutable.Queue(a)
+  while queue.nonEmpty do
+    f(queue.dequeue()) match
+      case Right(result) => results += result
+      case Left(states) => queue.enqueueAll(states)
+  results.toVector
 
 def lcm(list: Iterable[Long]): Long      = list.foldLeft(1L)((a, b) => b * a / gcd(a, b))
 @tailrec def gcd(x: Long, y: Long): Long = if y == 0 then x else gcd(y, x % y)

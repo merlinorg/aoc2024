@@ -18,12 +18,11 @@ object Day3 extends AoC:
     Mul2Re
       .findAllIn(lines.mkString)
       .toVector
-      .foldLeft((0L, true)):
+      .foldLeftMap((0L, true))(_._1):
         case ((total, _), "do()")    => (total, true)
         case ((total, _), "don't()") => (total, false)
         case ((total, false), _)     => (total, false)
         case ((total, true), mul)    => (total + mul.numbers.product, true)
-      ._1
   end part2
 
 end Day3

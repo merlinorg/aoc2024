@@ -38,12 +38,11 @@ object Day9 extends AoC:
 
   private def parse(lines: Vector[String]): (Vector[Extent], Vector[Extent]) =
     lines.head.toVector
-      .foldLeft((true, 0, 0, (Vector.empty[Extent], Vector.empty[Extent]))):
+      .foldLeftMap((true, 0, 0, (Vector.empty[Extent], Vector.empty[Extent])))(_._4):
         case ((true, index, pos, (files, blanks)), char)  =>
           (false, index, pos + char.asDigit, (Extent(index, pos, char.asDigit) +: files, blanks))
         case ((false, index, pos, (files, blanks)), char) =>
           (true, index + 1, pos + char.asDigit, (files, blanks :+ Extent(index, pos, char.asDigit)))
-      ._4
 
   private final case class Extent(id: Long, pos: Int, len: Int):
     def value: Long                     = id * (pos * len + len * (len - 1) / 2)
