@@ -11,10 +11,10 @@ object Day22 extends AoC:
 
   def part2(lines: Vector[String]): Long =
     val sequenceTotals = lines.foldMap: line =>
-      val secrets  = Iterator.iterate(line.toLong)(next).take(2000).map(_ % 10)
-      secrets.sliding(5).foldRight(Map.empty[(Long, Long, Long, Long), Long]):
+      val windows = Iterator.iterate(line.toLong)(next).take(2000).map(_ % 10).sliding(5)
+      windows.foldRight(Map.empty[(Long, Long, Long, Long), Long]):
         case (Seq(a, b, c, d, e), map) => map + ((b - a, c - b, d - c, e - c) -> e)
-        case (_, map) => map
+        case (_, map)                  => map
     sequenceTotals.values.max
   end part2
 
