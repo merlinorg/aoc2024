@@ -66,24 +66,27 @@ extension (self: String)
   def characters: Vector[String]            = self.split("").toVector
   def dropPrefix(p: String): Option[String] = Option.when(self.startsWith(p))(self.drop(p.length))
 
-// vector extensions
+// iterable extensions
 
-extension (self: Vector[String]) def numbers: Vector[Vector[Long]] = self.map(_.numbers)
-
-extension [A](self: Vector[A])
+extension[A] (self: Iterable[A])
   def mapToMap[B, C](f: A => (B, C)): Map[B, C] = self.map(f).toMap
 
   def collectToMap[B, C](pf: PartialFunction[A, (B, C)]): Map[B, C] = self.collect(pf).toMap
 
   def collectToSet[B](pf: PartialFunction[A, B]): Set[B] = self.collect(pf).toSet
 
-  def mapTo[B](f: A => B): Map[A, B] = self.fproduct(f).toMap
-
-  def flatFoldMap[B](f: A => Iterable[B])(using Monoid[B]): B = self.flatMap(f).suml
-
   def findMap[B](f: A => Option[B]): B = self.flatMap(f).head
 
   def foldLeftMap[B, C](z: B)(f: B => C)(op: (B, A) => B): C = f(self.foldLeft(z)(op))
+
+// vector extensions
+
+extension (self: Vector[String]) def numbers: Vector[Vector[Long]] = self.map(_.numbers)
+
+extension [A](self: Vector[A])
+  def mapTo[B](f: A => B): Map[A, B] = self.fproduct(f).toMap
+
+  def flatFoldMap[B](f: A => Iterable[B])(using Monoid[B]): B = self.flatMap(f).suml
 
   // maps a vector with an accumulator, returning the final accumulator and values
   def mapAcc[B, C](c0: C)(f: (C, A) => (C, B)): (C, Vector[B]) =
