@@ -5,7 +5,7 @@ import scalaz.Scalaz.*
 
 object Day23 extends AoC:
   def part1(lines: Vector[String]): Long =
-    cliques(parse(lines), 3).count(_.exists(_.startsWith("t")))
+    cliques(parse(lines), 3).toSet.count(_.exists(_.startsWith("t")))
   end part1
 
   def part2(lines: Vector[String]): String =
@@ -16,16 +16,14 @@ object Day23 extends AoC:
 
   type Network = Map[String, Set[String]]
 
-  def cliques(network: Network, size: Int): Set[Set[String]] =
+  def cliques(network: Network, size: Int): Iterable[Set[String]] =
     network
-      .flatMap: (computer, connected) =>
+      .flatMap: (origin, connected) =>
         connected.toVector
           .combinations(size - 1)
-          .filter: combo =>
-            combo.combinations(2).forall(pair => network(pair(0))(pair(1)))
-          .map: combo =>
-            Set(computer) ++ combo
-      .toSet
+          .filter(network.connected)
+          .map: subnet =>
+            Set(origin) ++ subnet
 
   def parse(lines: Vector[String]): Network =
     lines
@@ -33,5 +31,9 @@ object Day23 extends AoC:
         case s"$a-$b" => (a, b)
       .foldMap: (a, b) =>
         Map(a -> Set(b), b -> Set(a))
+
+  extension (network: Network)
+    def connected(subnet: Vector[String]): Boolean = subnet.allPairs.forall(connected)
+    def connected(pair: (String, String)): Boolean = network(pair(0))(pair(1))
 
 end Day23
