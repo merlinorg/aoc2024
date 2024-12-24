@@ -4,29 +4,26 @@ import scalaz.*
 import scalaz.Scalaz.*
 
 object Day24 extends AoC:
-  def part1(lines: Vector[String]): Long = parse(lines).solution._3
+  def part1(lines: Vector[String]): Long = parse(lines).z
 
   def part2(lines: Vector[String]): String =
-    if lines.length == 47 then "" else solve(parse(lines), Vector.empty)
+    if lines.length == 47 then "" else solve(parse(lines)).flatten.toVector.sorted.mkString(",")
 
-  private def solve(machine: Machine, swaps: Vector[String]): String =
-    val (x, y, z) = machine.solution
-    if x + y == z then
-      swaps.sorted.mkString(",")
-    else
-      val solver = for
-        key <- machine.keys("z").iterator
-        index = key.tail.toInt
-        correct = add2bit(index)
-        if machine.circuit(key) != correct
-        o0 <- machine.inGates(key)
-        o1 <- machine.gates.keySet
-        machine2 = machine.swap(o0, o1)
-        if machine2.circuit(key) == correct
-      yield machine2 -> Vector(o0, o1)
-      val (machine2, swap) = solver.next()
-      solve(machine2, swaps ++ swap)
-  end solve
+  private def solve(machine: Machine): Iterator[Vector[String]] =
+     Iterator.unfold(machine): machine =>
+      Option.when(machine.broken)(fix(machine).next())
+
+  private def fix(machine: Machine): Iterator[(Vector[String], Machine)] =
+    for
+      key <- machine.keys("z").iterator   // all outputs
+      index = key.tail.toInt              // output bit index
+      circuit = add2bit(index)            // correct 2-bit adder circuit
+      if machine.circuit(key) != circuit  // if the machine equation is incorrect
+      key0 <- machine.inGates(key)        // for all keys that feed this output
+      key1 <- machine.gates.keySet        // for all other keys
+      machine2 = machine.swap(key0, key1) // swap the gates
+      if machine2.circuit(key) == circuit // find the fix
+    yield Vector(key0, key1) -> machine2  // profit
 
   def add2bit(i: Int): String =
     val (x, y) = (pad("x", i), pad("y", i))
@@ -41,7 +38,9 @@ object Day24 extends AoC:
       val (gate0, gate1) = (gates(output0), gates(output1))
       copy(gates = gates + (output0 -> gate1) + (output1 -> gate0))
 
-    def solution: (Long, Long, Long) = (binary("x"), binary("y"), binary("z"))
+    def z: Long = binary("z")
+
+    def broken: Boolean = binary("x") + binary("y") != z
 
     def binary(prefix: String): Long =
       keys(prefix).foldRight(0L):
@@ -65,7 +64,6 @@ object Day24 extends AoC:
     def inGates(key: String): Set[String] = gates.get(key) match
       case Some((i0, i1), _, _) => Set(key) ++ inGates(i0) ++ inGates(i1)
       case None => Set.empty
-
 
   def pad(prefix: String, i: Long) = if i < 10 then s"${prefix}0$i" else s"$prefix$i"
 
