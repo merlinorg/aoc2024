@@ -88,6 +88,8 @@ extension [A](self: Vector[A])
 
   def flatFoldMap[B](f: A => Iterable[B])(using Monoid[B]): B = self.flatMap(f).suml
 
+  def foldCollect[B](pf: PartialFunction[A, B])(using Monoid[B]): B = self.collect(pf).suml
+
   // maps a vector with an accumulator, returning the final accumulator and values
   def mapAcc[B, C](c0: C)(f: (C, A) => (C, B)): (C, Vector[B]) =
     self.foldLeft(c0 -> Vector.empty[B]):
