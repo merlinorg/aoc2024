@@ -10,28 +10,28 @@ object Day24 extends AoC:
     if lines.length == 47 then "" else solve(parse(lines)).flatten.toVector.sorted.mkString(",")
 
   private def solve(machine: Machine): Iterator[Vector[String]] =
-     Iterator.unfold(machine): machine =>
+    Iterator.unfold(machine): machine =>
       Option.when(machine.broken)(fix(machine).next())
 
   private def fix(machine: Machine): Iterator[(Vector[String], Machine)] =
     for
-      key <- machine.keys("z").iterator   // all outputs
-      index = key.tail.toInt              // output bit index
-      circuit = add2bit(index)            // correct 2-bit adder circuit
-      if machine.circuit(key) != circuit  // if the machine equation is incorrect
-      key0 <- machine.inGates(key)        // for all keys that feed this output
-      key1 <- machine.gates.keySet        // for all other keys
-      machine2 = machine.swap(key0, key1) // swap the gates
-      if machine2.circuit(key) == circuit // find the fix
-    yield Vector(key0, key1) -> machine2  // profit
+      key     <- machine.keys("z").iterator // all outputs
+      index    = key.tail.toInt             // output bit index
+      circuit  = bitAdd(index)              // correct full adder circuit
+      if machine.circuit(key) != circuit    // if the machine equation is incorrect
+      key0    <- machine.inGates(key)       // for all keys that feed this output
+      key1    <- machine.gates.keySet       // for all other keys
+      machine2 = machine.swap(key0, key1)   // swap the gates
+      if machine2.circuit(key) == circuit   // find the fix
+    yield Vector(key0, key1) -> machine2    // profit
 
-  def add2bit(i: Int): String =
+  def bitAdd(i: Int): String =
     val (x, y) = (pad("x", i), pad("y", i))
-    if i == 0 then Op.XOR(x, y) else Op.XOR(Op.XOR(x, y), overflow2bit(i - 1))
+    if i == 0 then Op.XOR(x, y) else Op.XOR(Op.XOR(x, y), bitOverflow(i - 1))
 
-  def overflow2bit(i: Int): String =
+  def bitOverflow(i: Int): String =
     val (x, y) = (pad("x", i), pad("y", i))
-    if i == 0 then Op.AND(x, y) else Op.OR(Op.AND(Op.XOR(x, y), overflow2bit(i - 1)), Op.AND(x, y))
+    if i == 0 then Op.AND(x, y) else Op.OR(Op.AND(Op.XOR(x, y), bitOverflow(i - 1)), Op.AND(x, y))
 
   case class Machine(gates: Map[String, Gate], inputs: Map[String, Long]):
     def swap(output0: String, output1: String): Machine =
@@ -51,19 +51,21 @@ object Day24 extends AoC:
 
     def solve(key: String, loop: Set[String]): Long =
       if loop(key) then -1
-      else gates.get(key) match
-        case Some((i0, i1), op, _) => op(solve(i0, loop + key), solve(i1, loop + key))
-        case None                  => inputs.getOrElse(key, -1L)
+      else
+        gates.get(key) match
+          case Some((i0, i1), op, _) => op(solve(i0, loop + key), solve(i1, loop + key))
+          case None                  => inputs.getOrElse(key, -1L)
 
     def circuit(key: String, loop: Set[String] = Set.empty): String =
       if loop(key) then ""
-      else gates.get(key) match
-        case Some((i0, i1), op, _) => op(circuit(i0, loop + key), circuit(i1, loop + key))
-        case None => key
+      else
+        gates.get(key) match
+          case Some((i0, i1), op, _) => op(circuit(i0, loop + key), circuit(i1, loop + key))
+          case None                  => key
 
     def inGates(key: String): Set[String] = gates.get(key) match
       case Some((i0, i1), _, _) => Set(key) ++ inGates(i0) ++ inGates(i1)
-      case None => Set.empty
+      case None                 => Set.empty
 
   def pad(prefix: String, i: Long) = if i < 10 then s"${prefix}0$i" else s"$prefix$i"
 
@@ -88,6 +90,6 @@ object Day24 extends AoC:
       gatesStr.collectToMap:
         case s"$i0 ${Op(op)} $i1 -> $o" => o -> ((i0, i1), op, o),
       inputsStr.collectToMap:
-        case s"$input: ${L(value)}" => input -> value,
+        case s"$input: ${L(value)}" => input -> value
     )
 end Day24
