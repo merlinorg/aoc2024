@@ -1,4 +1,6 @@
-# Advent of Code 2024
+Moved [here](https://github.com/merlinorg/advent-of-code)!
+
+# ~Advent of Code 2024~
 
 A scala 3 winter miracle!
 
